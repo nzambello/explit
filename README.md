@@ -1,4 +1,6 @@
-# Welcome to Remix!
+# Explit
+
+Track and split shared expenses with friends and family.
 
 - [Remix Docs](https://remix.run/docs)
 
