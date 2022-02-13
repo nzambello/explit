@@ -33,16 +33,19 @@ async function seed() {
       description: "Spesa",
       amount: 100,
       userId: nicola.id,
+      teamId: famiglia.id,
     },
     {
       description: "Spesa",
       amount: 70,
       userId: shahra.id,
+      teamId: famiglia.id,
     },
     {
       description: "Affitto",
       amount: 500,
       userId: shahra.id,
+      teamId: famiglia.id,
     },
 
     // transaction between users
@@ -50,17 +53,20 @@ async function seed() {
       description: "Affitto",
       amount: 250,
       userId: nicola.id,
+      teamId: famiglia.id,
     },
     {
       description: "Affitto",
       amount: -250,
       userId: shahra.id,
+      teamId: famiglia.id,
     },
 
     {
       description: "Cena",
       amount: 50,
       userId: nicola.id,
+      teamId: famiglia.id,
     },
   ];
 

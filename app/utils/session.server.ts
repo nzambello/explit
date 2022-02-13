@@ -5,7 +5,12 @@ import { db } from "./db.server";
 type LoginForm = {
   username: string;
   password: string;
-  icon?: string;
+};
+
+type RegisterForm = {
+  username: string;
+  password: string;
+  icon: string;
   teamId: string;
 };
 
@@ -14,7 +19,7 @@ export async function register({
   password,
   icon,
   teamId,
-}: LoginForm) {
+}: RegisterForm) {
   const passwordHash = await bcrypt.hash(password, 10);
   const team = await db.team.findUnique({ where: { id: teamId } });
   if (!team) {
@@ -94,6 +99,13 @@ export async function getUser(request: Request) {
   try {
     const user = await db.user.findUnique({
       where: { id: userId },
+      include: {
+        team: {
+          include: {
+            members: true,
+          },
+        },
+      },
     });
     return user;
   } catch {
@@ -103,7 +115,7 @@ export async function getUser(request: Request) {
 
 export async function logout(request: Request) {
   const session = await storage.getSession(request.headers.get("Cookie"));
-  return redirect("/login", {
+  return redirect("/", {
     headers: {
       "Set-Cookie": await storage.destroySession(session),
     },

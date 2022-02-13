@@ -2,6 +2,7 @@ import type { ActionFunction, LinksFunction, MetaFunction } from "remix";
 import { useActionData, json, Link, useSearchParams, Form } from "remix";
 import { db } from "~/utils/db.server";
 import { login, createUserSession, register } from "~/utils/session.server";
+import Header from "../components/Header";
 
 export const links: LinksFunction = () => {
   return [];
@@ -37,14 +38,10 @@ type ActionData = {
   fieldErrors?: {
     username: string | undefined;
     password: string | undefined;
-    teamId: string | undefined;
   };
   fields?: {
-    loginType: string;
     username: string;
     password: string;
-    teamId: string;
-    icon?: string;
   };
 };
 
@@ -52,18 +49,12 @@ const badRequest = (data: ActionData) => json(data, { status: 400 });
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
-  const loginType = form.get("loginType");
   const username = form.get("username");
   const password = form.get("password");
-  const icon = form.get("icon");
-  const teamId = form.get("teamId");
   const redirectTo = form.get("redirectTo") || "/expenses";
   if (
-    typeof loginType !== "string" ||
     typeof username !== "string" ||
     typeof password !== "string" ||
-    typeof icon !== "string" ||
-    typeof teamId !== "string" ||
     typeof redirectTo !== "string"
   ) {
     return badRequest({
@@ -71,53 +62,22 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const fields = { loginType, username, password, teamId };
+  const fields = { username, password };
   const fieldErrors = {
     username: validateUsername(username),
     password: validatePassword(password),
-    teamId: validateTeamId(teamId),
   };
   if (Object.values(fieldErrors).some(Boolean))
     return badRequest({ fieldErrors, fields });
 
-  switch (loginType) {
-    case "login": {
-      const user = await login({ username, password, icon, teamId });
-      if (!user) {
-        return badRequest({
-          fields,
-          formError: `Username/Password combination is incorrect`,
-        });
-      }
-      return createUserSession(user.id, redirectTo);
-    }
-    case "register": {
-      const userExists = await db.user.findFirst({
-        where: { username },
-      });
-      if (userExists) {
-        console.error(userExists);
-        return badRequest({
-          fields,
-          formError: `User with username ${username} already exists`,
-        });
-      }
-      const user = await register({ username, password, icon, teamId });
-      if (!user) {
-        return badRequest({
-          fields,
-          formError: `Something went wrong trying to create a new user.`,
-        });
-      }
-      return createUserSession(user.id, redirectTo);
-    }
-    default: {
-      return badRequest({
-        fields,
-        formError: `Login type invalid`,
-      });
-    }
+  const user = await login({ username, password });
+  if (!user) {
+    return badRequest({
+      fields,
+      formError: `Username/Password combination is incorrect`,
+    });
   }
+  return createUserSession(user.id, redirectTo);
 };
 
 export default function Login() {
@@ -125,143 +85,150 @@ export default function Login() {
   const [searchParams] = useSearchParams();
 
   return (
-    <div className="container">
-      <div className="content" data-light="">
-        <h1>Login</h1>
-        <Form
-          method="post"
-          aria-describedby={
-            actionData?.formError ? "form-error-message" : undefined
-          }
-        >
-          <input
-            type="hidden"
-            name="redirectTo"
-            value={searchParams.get("redirectTo") ?? undefined}
-          />
-          <fieldset>
-            <legend className="sr-only">Login or Register?</legend>
-            <label>
+    <>
+      <Header />
+      <div className="container mx-auto min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="card bg-neutral w-full shadow-lg max-w-lg">
+          <div className="card-body w-full">
+            <h1 className="card-title">Login</h1>
+            <Form
+              method="post"
+              className="mt-5"
+              aria-describedby={
+                actionData?.formError ? "form-error-message" : undefined
+              }
+            >
               <input
-                type="radio"
-                name="loginType"
-                value="login"
-                defaultChecked={
-                  !actionData?.fields?.loginType ||
-                  actionData?.fields?.loginType === "login"
-                }
-              />{" "}
-              Login
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="loginType"
-                value="register"
-                defaultChecked={actionData?.fields?.loginType === "register"}
-              />{" "}
-              Register
-            </label>
-          </fieldset>
-          <div>
-            <label htmlFor="username-input">Username</label>
-            <input
-              type="text"
-              id="username-input"
-              name="username"
-              defaultValue={actionData?.fields?.username}
-              aria-invalid={Boolean(actionData?.fieldErrors?.username)}
-              aria-describedby={
-                actionData?.fieldErrors?.username ? "username-error" : undefined
-              }
-            />
-            {actionData?.fieldErrors?.username ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-                id="username-error"
+                type="hidden"
+                name="redirectTo"
+                value={searchParams.get("redirectTo") ?? undefined}
+              />
+              <div className="form-control mb-3">
+                <label htmlFor="username-input" className="label">
+                  <span className="label-text">Username</span>
+                </label>
+                <input
+                  type="text"
+                  id="username-input"
+                  name="username"
+                  className="input"
+                  defaultValue={actionData?.fields?.username}
+                  aria-invalid={Boolean(actionData?.fieldErrors?.username)}
+                  aria-describedby={
+                    actionData?.fieldErrors?.username
+                      ? "username-error"
+                      : undefined
+                  }
+                />
+                {actionData?.fieldErrors?.username && (
+                  <div className="alert alert-error" role="alert">
+                    <div className="flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 mx-2 stroke-current"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                        ></path>
+                      </svg>
+                      <label id="username-error">
+                        {actionData?.fieldErrors.username}
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="form-control mb-3">
+                <label htmlFor="password-input" className="label">
+                  <span className="label-text">Password</span>
+                </label>
+                <input
+                  id="password-input"
+                  name="password"
+                  className="input"
+                  defaultValue={actionData?.fields?.password}
+                  type="password"
+                  aria-invalid={
+                    Boolean(actionData?.fieldErrors?.password) || undefined
+                  }
+                  aria-describedby={
+                    actionData?.fieldErrors?.password
+                      ? "password-error"
+                      : undefined
+                  }
+                />
+                {actionData?.fieldErrors?.password && (
+                  <div className="alert alert-error" role="alert">
+                    <div className="flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 mx-2 stroke-current"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                        ></path>
+                      </svg>
+                      <label id="password-error">
+                        {actionData?.fieldErrors.password}
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div id="form-error-message" className="mt-6 mb-3">
+                {actionData?.formError && (
+                  <div className="alert alert-error" role="alert">
+                    <div className="flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 mx-2 stroke-current"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                        ></path>
+                      </svg>
+                      <label>{actionData?.formError}</label>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary mt-10 block w-full"
               >
-                {actionData?.fieldErrors.username}
-              </p>
-            ) : null}
+                Submit
+              </button>
+            </Form>
           </div>
-          <div>
-            <label htmlFor="username-input">Team ID</label>
-            <input
-              type="text"
-              id="team-id-input"
-              name="teamId"
-              defaultValue={actionData?.fields?.teamId}
-              aria-hidden={actionData?.fields?.loginType === "login"}
-              aria-invalid={Boolean(actionData?.fieldErrors?.teamId)}
-              aria-describedby={
-                actionData?.fieldErrors?.teamId ? "teamId-error" : undefined
-              }
-            />
-            {actionData?.fieldErrors?.teamId ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-                id="teamId-error"
-              >
-                {actionData?.fieldErrors.teamId}
-              </p>
-            ) : null}
-          </div>
-          <div>
-            <label htmlFor="username-input">Icon (letter or emoji)</label>
-            <input
-              type="text"
-              maxLength={1}
-              aria-hidden={actionData?.fields?.loginType === "login"}
-              id="icon-input"
-              name="icon"
-              defaultValue={actionData?.fields?.icon}
-            />
-          </div>
-          <div>
-            <label htmlFor="password-input">Password</label>
-            <input
-              id="password-input"
-              name="password"
-              defaultValue={actionData?.fields?.password}
-              type="password"
-              aria-invalid={
-                Boolean(actionData?.fieldErrors?.password) || undefined
-              }
-              aria-describedby={
-                actionData?.fieldErrors?.password ? "password-error" : undefined
-              }
-            />
-            {actionData?.fieldErrors?.password ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-                id="password-error"
-              >
-                {actionData?.fieldErrors.password}
-              </p>
-            ) : null}
-          </div>
-          <div id="form-error-message">
-            {actionData?.formError ? (
-              <p className="form-validation-error" role="alert">
-                {actionData?.formError}
-              </p>
-            ) : null}
-          </div>
-          <button type="submit" className="button">
-            Submit
-          </button>
-        </Form>
+        </div>
       </div>
-      <div className="links">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-        </ul>
+      <div className="container">
+        <div className="links">
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/signin">Sign-in</Link>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

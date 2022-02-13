@@ -1,5 +1,6 @@
 import type { LinksFunction, MetaFunction } from "remix";
 import { Links, LiveReload, Outlet, useCatch, Meta, Scripts } from "remix";
+import Header from "./components/Header";
 
 import styles from "./tailwind.css";
 
@@ -44,14 +45,14 @@ function Document({
   title?: string;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <head>
         <meta charSet="utf-8" />
         <Meta />
         <title>{title}</title>
         <Links />
       </head>
-      <body>
+      <body className="bg-base-300 m-0 min-h-screen">
         {children}
         <Scripts />
         {process.env.NODE_ENV === "development" ? <LiveReload /> : null}
