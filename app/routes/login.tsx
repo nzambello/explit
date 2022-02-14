@@ -1,6 +1,6 @@
 import type { ActionFunction, LinksFunction, MetaFunction } from "remix";
 import { useActionData, json, Link, useSearchParams, Form } from "remix";
-import { login, createUserSession, register } from "~/utils/session.server";
+import { login, createUserSession } from "~/utils/session.server";
 import Header from "../components/Header";
 
 export const links: LinksFunction = () => {
@@ -104,7 +104,7 @@ export default function Login() {
                   type="text"
                   id="username-input"
                   name="username"
-                  className="input"
+                  className="input input-bordered"
                   defaultValue={actionData?.fields?.username}
                   aria-invalid={Boolean(actionData?.fieldErrors?.username)}
                   aria-describedby={
@@ -143,7 +143,7 @@ export default function Login() {
                 <input
                   id="password-input"
                   name="password"
-                  className="input"
+                  className="input input-bordered"
                   defaultValue={actionData?.fields?.password}
                   type="password"
                   aria-invalid={

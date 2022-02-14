@@ -85,7 +85,7 @@ const Header = ({ user, route }: Props) => {
             {user ? (
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} className="btn btn-ghost rounded-full p-0">
-                  <div className="rounded-full w-10 h-10 m-1 inline-flex justify-center items-center bg-white text-3xl">
+                  <div className="rounded-full w-10 h-10 m-1 inline-flex justify-center items-center bg-primary-content text-primary text-3xl">
                     {user.icon ?? user.username[0]}
                   </div>
                 </div>
