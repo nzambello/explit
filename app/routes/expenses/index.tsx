@@ -121,39 +121,32 @@ export default function JokesIndexRoute() {
       <div className="col-span-2 md:col-span-1 card shadow-lg compact side bg-base-100">
         <div className="flex-column items-center card-body !py-6">
           <h2 className="card-title">Who needs to pay who</h2>
-          <ul className="flex flex-row flex-wrap items-center list-none shadow-inner w-full rounded-lg p-4 my-4 mx-0 max-h-48 overflow-x-scroll">
+          <div className="w-full shadow stats grid-cols-2 grid-flow-row-dense">
             {data.teamCounts?.map((user) => (
-              <li
-                className="flex flex-wrap flex-column w-1/2 justify-center items-center mb-4"
-                key={user.id}
-              >
-                <div className="flex">
-                  <div className="rounded-full shrink-0 w-10 h-10 inline-flex justify-center items-center bg-white text-3xl">
+              <div className="stat col-span-1">
+                <div className="stat-figure text-info">
+                  <div className="rounded-full shrink-0 w-12 h-12 inline-flex justify-center items-center bg-white text-3xl">
                     {user.icon ?? user.username[0]}
                   </div>
-                  <div className="ml-3 flex w-full flex-col justify-center items-start">
-                    <span className="font-bold">{user.username}</span>
-                  </div>
                 </div>
-                <div className="grow font-bold w-full mt-3 text-center">
-                  <div
-                    data-tip={
-                      user.dueAmount > 0 ? `You owe others` : `Others owe you`
-                    }
-                    className="tooltip"
-                  >
-                    <span
-                      className={`text-xl ${
-                        user.dueAmount > 0 ? "text-error" : "text-success"
+                <div
+                  className={`stat-value ${
+                    user.dueAmount > 0 ? "text-error" : "text-success"
+                  }`}
+                >
+                  {Math.abs(user.dueAmount)} €
+                </div>
+                <div className="stat-title text-lg">{user.username}</div>
+                <div className="stat-desc text-info">
+                  {user.dueAmount > 0
+                    ? `${user.id === data.user.id ? "You owe" : "Owes"} others`
+                    : `Others owe ${
+                        user.id === data.user.id ? "you" : "him/her"
                       }`}
-                    >
-                      {user.dueAmount > 0 ? user.dueAmount : -user.dueAmount} €
-                    </span>
-                  </div>
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
       <div className="card shadow-lg compact side md:bg-base-100 order-first md:order-none">
