@@ -96,7 +96,7 @@ export default function NewExpenseRoute() {
   return (
     <>
       <div className="container mx-auto min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="card bg-neutral w-full shadow-lg max-w-lg">
+        <div className="card bg-base-200 w-full shadow-lg max-w-lg">
           <div className="card-body w-full">
             <h1 className="card-title">Transfer to user</h1>
             <Form
@@ -132,7 +132,7 @@ export default function NewExpenseRoute() {
                 </label>
                 <input
                   type="text"
-                  className="input"
+                  className="input input-bordered"
                   name="description"
                   id="description-input"
                   defaultValue={actionData?.fields?.description}
@@ -144,7 +144,7 @@ export default function NewExpenseRoute() {
                 </label>
                 <input
                   type="number"
-                  className="input"
+                  className="input input-bordered"
                   id="amount-input"
                   name="amount"
                   defaultValue={actionData?.fields?.amount}

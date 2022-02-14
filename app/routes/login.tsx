@@ -81,7 +81,7 @@ export default function Login() {
     <>
       <Header />
       <div className="container mx-auto min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="card bg-neutral w-full shadow-lg max-w-lg">
+        <div className="card bg-base-200 w-full shadow-lg max-w-lg">
           <div className="card-body w-full">
             <h1 className="card-title">Login</h1>
             <Form
