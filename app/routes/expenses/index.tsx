@@ -5,7 +5,22 @@ import { db } from "~/utils/db.server";
 import { getUser } from "~/utils/session.server";
 import Group from "~/icons/Group";
 
-type LoaderData = { lastExpenses: (Expense & { user: User })[]; user: User };
+type LoaderData = {
+  lastExpenses: (Expense & { user: User })[];
+  user: User;
+  teamCounts: {
+    id: string;
+    username: string;
+    icon: string;
+    count: number;
+    spent: number;
+    dueAmount: number;
+  }[];
+  totalExpenses: {
+    count: number;
+    amount: number;
+  };
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -21,7 +36,45 @@ export const loader: LoaderFunction = async ({ request }) => {
     where: { teamId: user.teamId },
   });
 
-  const data: LoaderData = { lastExpenses, user };
+  let teamExpenses = await db.expense.groupBy({
+    by: ["userId"],
+    _count: {
+      _all: true,
+    },
+    _sum: {
+      amount: true,
+    },
+    where: { user: { teamId: user.teamId } },
+  });
+  let expensesByUser = user.team.members.map((m) => ({
+    id: m.id,
+    username: m.username,
+    icon: m.icon,
+    count: teamExpenses.find((e) => e.userId === m.id)?._count?._all ?? 0,
+    spent: teamExpenses.find((e) => e.userId === m.id)?._sum?.amount ?? 0,
+    dueAmount: 0,
+  }));
+  let totalExpenses = expensesByUser.reduce(
+    (acc, { count, spent }) => ({
+      count: acc.count + count,
+      amount: acc.amount + spent,
+    }),
+    { count: 0, amount: 0 }
+  );
+  const avgPerUser = totalExpenses.amount / user.team.members.length;
+  let teamCounts = expensesByUser.map((userData) => ({
+    ...userData,
+    dueAmount: avgPerUser - userData.spent,
+  }));
+  console.log("totalExpenses", totalExpenses);
+  console.log("expensesByUser", expensesByUser);
+
+  const data: LoaderData = {
+    lastExpenses,
+    user,
+    totalExpenses,
+    teamCounts,
+  };
   return data;
 };
 
@@ -66,8 +119,41 @@ export default function JokesIndexRoute() {
         </div>
       </div>
       <div className="col-span-2 md:col-span-1 card shadow-lg compact side bg-base-100">
-        <div className="flex-row items-center space-x-4 card-body">
+        <div className="flex-column items-center card-body !py-6">
           <h2 className="card-title">Who needs to pay who</h2>
+          <ul className="flex flex-row flex-wrap items-center list-none shadow-inner w-full rounded-lg p-4 my-4 mx-0 max-h-48 overflow-x-scroll">
+            {data.teamCounts?.map((user) => (
+              <li
+                className="flex flex-wrap flex-column w-1/2 justify-center items-center mb-4"
+                key={user.id}
+              >
+                <div className="flex">
+                  <div className="rounded-full shrink-0 w-10 h-10 inline-flex justify-center items-center bg-white text-3xl">
+                    {user.icon ?? user.username[0]}
+                  </div>
+                  <div className="ml-3 flex w-full flex-col justify-center items-start">
+                    <span className="font-bold">{user.username}</span>
+                  </div>
+                </div>
+                <div className="grow font-bold w-full mt-3 text-center">
+                  <div
+                    data-tip={
+                      user.dueAmount > 0 ? `You owe others` : `Others owe you`
+                    }
+                    className="tooltip"
+                  >
+                    <span
+                      className={`text-md ${
+                        user.dueAmount > 0 ? "text-error" : "text-success"
+                      }`}
+                    >
+                      {user.dueAmount > 0 ? user.dueAmount : -user.dueAmount} €
+                    </span>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
       <div className="card shadow-lg compact side md:bg-base-100 order-first md:order-none">

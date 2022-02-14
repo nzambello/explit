@@ -50,7 +50,7 @@ function validateConfirmPassword(confirmPassword: unknown, password: string) {
 }
 
 function validateIcon(icon: unknown) {
-  if (typeof icon === "string" && icon.length > 2) {
+  if (typeof icon === "string" && icon.length < 0) {
     return `Icons must be a single character, e.g. "A" or "😎"`;
   }
 }
