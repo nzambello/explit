@@ -113,6 +113,22 @@ export async function getUser(request: Request) {
   }
 }
 
+export async function getUsersByTeam(request: Request) {
+  const user = await getUser(request);
+  if (!user) {
+    return null;
+  }
+
+  try {
+    const users = await db.user.findMany({
+      where: { teamId: user.teamId },
+    });
+    return users;
+  } catch {
+    throw logout(request);
+  }
+}
+
 export async function logout(request: Request) {
   const session = await storage.getSession(request.headers.get("Cookie"));
   return redirect("/", {

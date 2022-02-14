@@ -83,9 +83,9 @@ export default function JokesIndexRoute() {
               className="inline-block lg:mr-2 w-6 h-6 stroke-current rotate-45"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="M6 18L18 6M6 6l12 12"
               ></path>
             </svg>
@@ -98,7 +98,7 @@ export default function JokesIndexRoute() {
       <div className="card shadow-lg compact side md:bg-base-100 order-first md:order-none">
         <div className="flex-row items-center justify-center space-x-4 card-body">
           <Link
-            to="new"
+            to="transfer"
             className="btn btn-primary flex-wrap py-3 h-auto w-full"
           >
             <Group className="inline-block lg:mr-2 w-6 h-6 stroke-current" />

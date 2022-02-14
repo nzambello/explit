@@ -1,6 +1,5 @@
 import type { ActionFunction, LinksFunction, MetaFunction } from "remix";
 import { useActionData, json, Link, useSearchParams, Form } from "remix";
-import { db } from "~/utils/db.server";
 import { login, createUserSession, register } from "~/utils/session.server";
 import Header from "../components/Header";
 
@@ -24,12 +23,6 @@ function validateUsername(username: unknown) {
 function validatePassword(password: unknown) {
   if (typeof password !== "string" || password.length < 6) {
     return `Passwords must be at least 6 characters long`;
-  }
-}
-
-function validateTeamId(teamId: unknown) {
-  if (typeof teamId !== "string" || teamId.length < 1) {
-    return "You must indicate an arbitrary team ID";
   }
 }
 
@@ -121,7 +114,7 @@ export default function Login() {
                   }
                 />
                 {actionData?.fieldErrors?.username && (
-                  <div className="alert alert-error" role="alert">
+                  <div className="alert alert-error mt-2" role="alert">
                     <div className="flex-1">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -130,9 +123,9 @@ export default function Login() {
                         className="w-6 h-6 mx-2 stroke-current"
                       >
                         <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
                           d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
                         ></path>
                       </svg>
@@ -163,7 +156,7 @@ export default function Login() {
                   }
                 />
                 {actionData?.fieldErrors?.password && (
-                  <div className="alert alert-error" role="alert">
+                  <div className="alert alert-error mt-2" role="alert">
                     <div className="flex-1">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -172,9 +165,9 @@ export default function Login() {
                         className="w-6 h-6 mx-2 stroke-current"
                       >
                         <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
                           d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
                         ></path>
                       </svg>
@@ -185,50 +178,49 @@ export default function Login() {
                   </div>
                 )}
               </div>
-              <div id="form-error-message" className="mt-6 mb-3">
-                {actionData?.formError && (
-                  <div className="alert alert-error" role="alert">
-                    <div className="flex-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        className="w-6 h-6 mx-2 stroke-current"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                        ></path>
-                      </svg>
-                      <label>{actionData?.formError}</label>
-                    </div>
+              {actionData?.formError && (
+                <div className="alert alert-error mt-5" role="alert">
+                  <div className="flex-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      className="w-6 h-6 mx-2 stroke-current"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                      ></path>
+                    </svg>
+                    <label id="form-error-message">
+                      {actionData?.formError}
+                    </label>
                   </div>
-                )}
+                </div>
+              )}
+              <div className="text-center max-w-xs mx-auto mt-10">
+                <button type="submit" className="btn btn-primary btn-block">
+                  Login
+                </button>
               </div>
-              <button
-                type="submit"
-                className="btn btn-primary mt-10 block w-full"
-              >
-                Submit
-              </button>
             </Form>
           </div>
         </div>
       </div>
-      <div className="container">
-        <div className="links">
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/signin">Sign-in</Link>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <ul className="menu px-3 menu-horizontal rounded-box max-w-xs mx-auto flex items-center justify-evenly">
+        <li>
+          <Link to="/" className="btn btn-outline btn-accent">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link to="/signin" className="btn btn-outline btn-accent">
+            Sign-in
+          </Link>
+        </li>
+      </ul>
     </>
   );
 }
