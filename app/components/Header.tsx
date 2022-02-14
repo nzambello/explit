@@ -42,44 +42,46 @@ const Header = ({ user, route }: Props) => {
             </Link>
           </div>
           <div className="flex-none hidden lg:block">
-            <ul className="menu horizontal">
-              <li>
-                <Link to="/expenses" className="btn btn-ghost rounded-btn">
-                  <MoneyAdd className="lg:mr-2" />
-                  <span
-                    className={`hidden lg:inline-block ${
-                      route === "/expenses" ? "underline" : ""
-                    }`}
-                  >
-                    Expenses
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/team" className="btn btn-ghost rounded-btn">
-                  <People className="lg:mr-2" />
-                  <span
-                    className={`hidden lg:inline-block ${
-                      route === "/team" ? "underline" : ""
-                    }`}
-                  >
-                    Your team
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/statistics" className="btn btn-ghost rounded-btn">
-                  <Percentage className="lg:mr-2" />
-                  <span
-                    className={`hidden lg:inline-block ${
-                      route === "/statistics" ? "underline" : ""
-                    }`}
-                  >
-                    Statistics
-                  </span>
-                </Link>
-              </li>
-            </ul>
+            {user && (
+              <ul className="menu horizontal">
+                <li>
+                  <Link to="/expenses" className="btn btn-ghost rounded-btn">
+                    <MoneyAdd className="lg:mr-2" />
+                    <span
+                      className={`hidden lg:inline-block ${
+                        route === "/expenses" ? "underline" : ""
+                      }`}
+                    >
+                      Expenses
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/team" className="btn btn-ghost rounded-btn">
+                    <People className="lg:mr-2" />
+                    <span
+                      className={`hidden lg:inline-block ${
+                        route === "/team" ? "underline" : ""
+                      }`}
+                    >
+                      Your team
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/statistics" className="btn btn-ghost rounded-btn">
+                    <Percentage className="lg:mr-2" />
+                    <span
+                      className={`hidden lg:inline-block ${
+                        route === "/statistics" ? "underline" : ""
+                      }`}
+                    >
+                      Statistics
+                    </span>
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
           <div className="flex-none">
             {user ? (
@@ -154,42 +156,57 @@ const Header = ({ user, route }: Props) => {
               <span className="text-lg font-bold">Explit</span>
             </Link>
           </li>
-          <li className="items-start">
-            <Link to="/expenses" className="btn btn-ghost rounded-btn">
-              <MoneyAdd className="mr-2" />
-              <span
-                className={`inline-block ${
-                  route === "/expenses" ? "underline" : ""
-                }`}
+          {user ? (
+            <>
+              <li className="items-start">
+                <Link to="/expenses" className="btn btn-ghost rounded-btn">
+                  <MoneyAdd className="mr-2" />
+                  <span
+                    className={`inline-block ${
+                      route === "/expenses" ? "underline" : ""
+                    }`}
+                  >
+                    Expenses
+                  </span>
+                </Link>
+              </li>
+              <li className="items-start">
+                <Link to="/team" className="btn btn-ghost rounded-btn">
+                  <People className="mr-2" />
+                  <span
+                    className={`inline-block ${
+                      route === "/team" ? "underline" : ""
+                    }`}
+                  >
+                    Your team
+                  </span>
+                </Link>
+              </li>
+              <li className="items-start">
+                <Link to="/statistics" className="btn btn-ghost rounded-btn">
+                  <Percentage className="mr-2" />
+                  <span
+                    className={`inline-block ${
+                      route === "/statistics" ? "underline" : ""
+                    }`}
+                  >
+                    Statistics
+                  </span>
+                </Link>
+              </li>
+            </>
+          ) : (
+            <li className="items-start">
+              <Link
+                to="/login"
+                className="btn btn-ghost rounded-btn"
+                title="Login"
               >
-                Expenses
-              </span>
-            </Link>
-          </li>
-          <li className="items-start">
-            <Link to="/team" className="btn btn-ghost rounded-btn">
-              <People className="mr-2" />
-              <span
-                className={`inline-block ${
-                  route === "/team" ? "underline" : ""
-                }`}
-              >
-                Your team
-              </span>
-            </Link>
-          </li>
-          <li className="items-start">
-            <Link to="/statistics" className="btn btn-ghost rounded-btn">
-              <Percentage className="mr-2" />
-              <span
-                className={`inline-block ${
-                  route === "/statistics" ? "underline" : ""
-                }`}
-              >
-                Statistics
-              </span>
-            </Link>
-          </li>
+                <LoginSVG />
+                <span className="inline-block ml-1">Login</span>
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
     </header>

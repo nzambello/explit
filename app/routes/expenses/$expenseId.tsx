@@ -11,7 +11,7 @@ import type { Expense, User } from "@prisma/client";
 import { db } from "~/utils/db.server";
 import { requireUserId, getUserId } from "~/utils/session.server";
 
-type LoaderData = { expense: Expense; user: User; isOwner: boolean };
+type LoaderData = { expense: Expense & { user: User }; isOwner: boolean };
 
 export const meta: MetaFunction = ({
   data,
@@ -38,23 +38,17 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const expense = await db.expense.findUnique({
     where: { id: params.expenseId },
+    include: {
+      user: true,
+    },
   });
   if (!expense) {
     throw new Response("What an expense! Not found.", {
       status: 404,
     });
   }
-  const expenseUser = await db.user.findUnique({
-    where: { id: expense.userId },
-  });
-  if (!expenseUser) {
-    throw new Response("Oupsie! Not found.", {
-      status: 500,
-    });
-  }
   const data: LoaderData = {
     expense,
-    user: expenseUser,
     isOwner: userId === expense.userId,
   };
   return data;
@@ -84,18 +78,96 @@ export default function ExpenseRoute() {
   const data = useLoaderData<LoaderData>();
 
   return (
-    <div>
-      <p>Description: {data.expense.description}</p>
-      <p>Amount: {data.expense.amount}€</p>
-      <p>User: {data.user.username}</p>
-      {data.isOwner && (
-        <form method="post">
-          <input type="hidden" name="_method" value="delete" />
-          <button type="submit" className="button">
-            Delete
-          </button>
-        </form>
-      )}
+    <div className="card shadow-lg bg-base-100 my-4">
+      <div className="flex-col items-center card-body p-4">
+        <div className="flex flex-row w-full items-center">
+          <Link to="/expenses" className="btn btn-ghost mr-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="inline-block w-6 h-6 mr-2 stroke-current rotate-180"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              ></path>
+            </svg>
+            Back
+          </Link>
+          <h2 className="card-title mb-0">Expense details</h2>
+        </div>
+        <dl className="w-full py-6 px-3 my-4 rounded-box bg-base-200">
+          <div className="bg-base-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-base-400">Description</dt>
+            <dd className="mt-1 text-sm text-base-900 sm:mt-0 sm:col-span-2">
+              {data.expense.description}
+            </dd>
+          </div>
+          <div className="bg-base-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-base-400">Amount</dt>
+            <dd className="mt-1 text-sm text-base-900 sm:mt-0 sm:col-span-2">
+              {data.expense.amount} €
+            </dd>
+          </div>
+          <div className="bg-base-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 items-center">
+            <dt className="text-sm font-medium text-base-400">User</dt>
+            <dd className="mt-2 text-sm text-base-900 sm:mt-0 sm:col-span-2 flex items-center">
+              <div className="rounded-full w-10 h-10 inline-flex justify-center items-center bg-white text-3xl mr-4">
+                {data.expense.user.icon ?? data.expense.user.username[0]}
+              </div>
+              {data.expense.user.username}
+            </dd>
+          </div>
+          <div className="bg-base-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-base-400">Date</dt>
+            <dd className="mt-1 text-sm text-base-900 sm:mt-0 sm:col-span-2">
+              {new Intl.DateTimeFormat("it", {
+                dateStyle: "short",
+                timeStyle: "short",
+              }).format(new Date(data.expense.createdAt))}
+            </dd>
+          </div>
+        </dl>
+        {data.isOwner && (
+          <>
+            <div className="flex justify-center align-center mt-6">
+              <label
+                htmlFor="delete-expense-modal"
+                className="btn btn-error modal-button"
+              >
+                Delete expense
+              </label>
+            </div>
+            <input
+              type="checkbox"
+              id="delete-expense-modal"
+              className="modal-toggle"
+            />
+            <div className="modal">
+              <div className="modal-box absolute left-[10%] right-[10%] top-[40%] w-[80%] rounded-lg">
+                <p>
+                  Do you really want to delete your expense? Its data will be
+                  permanently deleted.
+                </p>
+                <div className="modal-action">
+                  <Form method="post">
+                    <input type="hidden" name="_method" value="delete" />
+                    <button type="submit" className="btn btn-error">
+                      Delete
+                    </button>
+                  </Form>
+                  <label htmlFor="delete-expense-modal" className="btn">
+                    Cancel
+                  </label>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

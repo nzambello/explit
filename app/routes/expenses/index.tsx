@@ -78,7 +78,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return data;
 };
 
-export default function JokesIndexRoute() {
+export default function ExpensesIndexRoute() {
   const data = useLoaderData<LoaderData>();
 
   return (
@@ -88,28 +88,33 @@ export default function JokesIndexRoute() {
           <h2 className="card-title">Last expenses</h2>
           <ul className="list-none shadow-inner w-full rounded-lg p-4 my-4 mx-0 max-h-48 overflow-x-scroll">
             {data.lastExpenses?.map((exp) => (
-              <li className="flex w-full items-center mb-3" key={exp.id}>
-                <div className="rounded-full w-10 h-10 inline-flex justify-center items-center bg-white text-3xl">
-                  {exp.user.icon ?? exp.user.username[0]}
-                </div>
-                <div className="font-bold w-16 ml-2 text-right">
-                  <span
-                    className={`${
-                      exp.amount > 0 ? "text-error" : "text-success"
-                    }`}
-                  >
-                    {-exp.amount} €
-                  </span>
-                </div>
-                <div className="grow ml-3 flex flex-col justify-center items-start">
-                  <span className="text-xs opacity-50">
-                    {new Intl.DateTimeFormat("it", {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    }).format(new Date(exp.createdAt))}
-                  </span>
-                  <span className="font-bold">{exp.description}</span>
-                </div>
+              <li key={exp.id}>
+                <Link
+                  className="flex w-full items-center mb-3"
+                  to={`/expenses/${exp.id}`}
+                >
+                  <div className="rounded-full w-10 h-10 inline-flex justify-center items-center bg-white text-3xl">
+                    {exp.user.icon ?? exp.user.username[0]}
+                  </div>
+                  <div className="font-bold w-16 ml-2 text-right">
+                    <span
+                      className={`${
+                        exp.amount > 0 ? "text-error" : "text-success"
+                      }`}
+                    >
+                      {-exp.amount} €
+                    </span>
+                  </div>
+                  <div className="grow ml-3 flex flex-col justify-center items-start">
+                    <span className="text-xs opacity-50">
+                      {new Intl.DateTimeFormat("it", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      }).format(new Date(exp.createdAt))}
+                    </span>
+                    <span className="font-bold">{exp.description}</span>
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>
@@ -125,7 +130,7 @@ export default function JokesIndexRoute() {
             {data.teamCounts?.map((user) => (
               <div className="stat col-span-1">
                 <div className="stat-figure text-info">
-                  <div className="rounded-full shrink-0 w-12 h-12 inline-flex justify-center items-center bg-white text-3xl">
+                  <div className="rounded-full shrink-0 w-4 sm:w-10 h-4 sm:h-10 inline-flex justify-center items-center bg-white text-3xl">
                     {user.icon ?? user.username[0]}
                   </div>
                 </div>
@@ -140,9 +145,7 @@ export default function JokesIndexRoute() {
                 <div className="stat-desc text-info">
                   {user.dueAmount > 0
                     ? `${user.id === data.user.id ? "You owe" : "Owes"} others`
-                    : `Others owe ${
-                        user.id === data.user.id ? "you" : "him/her"
-                      }`}
+                    : `Others owe ${user.id === data.user.id ? "you" : ""}`}
                 </div>
               </div>
             ))}
