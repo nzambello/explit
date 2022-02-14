@@ -2,6 +2,8 @@
 
 Track and split shared expenses with friends and family.
 
+![Explit](https://raw.githubusercontent.com/explit/explit/main/assets/public/explit.png)
+
 - [Remix Docs](https://remix.run/docs)
 
 ## Development
