@@ -115,10 +115,10 @@ const Header = ({ user, route }: Props) => {
             ) : (
               <Link
                 to="/login"
-                className="btn btn-square btn-ghost"
+                className="btn btn-square lg:w-auto lg:px-4 btn-ghost"
                 title="Login"
               >
-                <span className="hidden lg:inline-block mr-1">Login</span>
+                <span className="hidden lg:inline-block lg:mr-1">Login</span>
                 <LoginSVG />
               </Link>
             )}
