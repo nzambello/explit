@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "remix";
 import {
   useActionData,
@@ -74,6 +73,11 @@ export const action: ActionFunction = async ({ request }) => {
   const expense = await db.expense.create({
     data: { ...fields, userId: userId, teamId: user.teamId },
   });
+  if (!expense) {
+    return badRequest({
+      formError: `Could not create expense.`,
+    });
+  }
   return redirect(`/expenses/${expense.id}`);
 };
 

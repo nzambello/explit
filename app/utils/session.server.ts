@@ -14,6 +14,13 @@ type RegisterForm = {
   teamId: string;
 };
 
+type UpdateUserForm = {
+  id: string;
+  password?: string;
+  icon?: string;
+  teamId?: string;
+};
+
 export async function register({
   username,
   password,
@@ -32,6 +39,31 @@ export async function register({
   }
   const user = await db.user.create({
     data: { username, passwordHash, icon: icon ?? username[0], teamId },
+  });
+  return user;
+}
+
+export async function updateUser({ id, ...data }: UpdateUserForm) {
+  if (data.teamId) {
+    const team = await db.team.findUnique({ where: { id: data.teamId } });
+    if (!team) {
+      await db.team.create({
+        data: {
+          id: data.teamId,
+          icon: data.teamId[0],
+        },
+      });
+    }
+  }
+
+  const passwordHash = await bcrypt.hash(data.password ?? "", 10);
+  const user = await db.user.update({
+    data: {
+      ...(data?.icon ? { icon: data.icon } : {}),
+      ...(data?.password ? { passwordHash } : {}),
+      ...(data?.teamId ? { teamId: data.teamId } : {}),
+    },
+    where: { id },
   });
   return user;
 }

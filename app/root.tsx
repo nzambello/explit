@@ -1,5 +1,12 @@
-import type { LinksFunction, MetaFunction } from "remix";
+import {
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+  useLoaderData,
+} from "remix";
+import type { User, Team } from "@prisma/client";
 import { Links, LiveReload, Outlet, useCatch, Meta, Scripts } from "remix";
+import { getUser } from "./utils/session.server";
 
 import styles from "./tailwind.css";
 import headerStyles from "./styles/header.css";
@@ -9,22 +16,6 @@ export const links: LinksFunction = () => {
     { rel: "stylesheet", href: styles },
     { rel: "stylesheet", href: headerStyles },
   ];
-  // return [
-  //   {
-  //     rel: "stylesheet",
-  //     href: globalStylesUrl,
-  //   },
-  //   {
-  //     rel: "stylesheet",
-  //     href: globalMediumStylesUrl,
-  //     media: "print, (min-width: 640px)",
-  //   },
-  //   {
-  //     rel: "stylesheet",
-  //     href: globalLargeStylesUrl,
-  //     media: "screen and (min-width: 1024px)",
-  //   },
-  // ];
 };
 
 export const meta: MetaFunction = () => {
@@ -40,6 +31,19 @@ export const meta: MetaFunction = () => {
   };
 };
 
+type LoaderData = {
+  user: (User & { team: Team & { members: User[] } }) | null;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUser(request);
+
+  const data: LoaderData = {
+    user,
+  };
+  return data;
+};
+
 function Document({
   children,
   title = `Explit`,
@@ -47,8 +51,10 @@ function Document({
   children: React.ReactNode;
   title?: string;
 }) {
+  const data = useLoaderData<LoaderData>();
+
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme={data?.user?.theme ?? "dark"}>
       <head>
         <meta charSet="utf-8" />
         <meta
