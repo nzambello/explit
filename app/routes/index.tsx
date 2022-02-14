@@ -1,5 +1,5 @@
 import type { User } from "@prisma/client";
-import type { LinksFunction, MetaFunction, LoaderFunction } from "remix";
+import { LinksFunction, MetaFunction, LoaderFunction, redirect } from "remix";
 import { Link, useLoaderData } from "remix";
 import Header from "~/components/Header";
 import { getUser } from "~/utils/session.server";
@@ -20,6 +20,11 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
+
+  if (user) {
+    return redirect("/expenses");
+  }
+
   const data: LoaderData = { user };
   return data;
 };
@@ -43,9 +48,15 @@ export default function Index() {
             <p className="mb-5">
               Track and split shared expenses with friends and family.
             </p>
-            <Link to="/signin" className="btn btn-primary">
-              Get Started
-            </Link>
+            {data.user ? (
+              <Link to="/expenses" className="btn btn-primary">
+                Go to expenses
+              </Link>
+            ) : (
+              <Link to="/signin" className="btn btn-primary">
+                Get Started
+              </Link>
+            )}
           </div>
         </div>
       </div>
