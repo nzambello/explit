@@ -143,7 +143,7 @@ export default function JokesIndexRoute() {
                     className="tooltip"
                   >
                     <span
-                      className={`text-md ${
+                      className={`text-xl ${
                         user.dueAmount > 0 ? "text-error" : "text-success"
                       }`}
                     >
