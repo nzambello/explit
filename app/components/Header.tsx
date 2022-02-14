@@ -68,7 +68,7 @@ const Header = ({ user, route }: Props) => {
                 </Link>
               </li>
               <li>
-                <Link to="#" className="btn btn-ghost rounded-btn">
+                <Link to="/statistics" className="btn btn-ghost rounded-btn">
                   <Percentage className="lg:mr-2" />
                   <span
                     className={`hidden lg:inline-block ${
@@ -179,7 +179,7 @@ const Header = ({ user, route }: Props) => {
             </Link>
           </li>
           <li className="items-start">
-            <Link to="#" className="btn btn-ghost rounded-btn">
+            <Link to="/statistics" className="btn btn-ghost rounded-btn">
               <Percentage className="mr-2" />
               <span
                 className={`inline-block ${
