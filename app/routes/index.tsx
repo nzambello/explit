@@ -30,9 +30,23 @@ export default function Index() {
   return (
     <>
       <Header user={data.user} />
-      <div className="container">
-        <div className="content">
-          <h1>Explit</h1>
+      <div
+        className="hero fixed top-0 left-0 h-screen w-screen"
+        style={{
+          backgroundImage: 'url("/explit.png")',
+        }}
+      >
+        <div className="hero-overlay bg-opacity-60"></div>
+        <div className="text-center hero-content glass rounded-box w-[80%] py-16 text-neutral-content">
+          <div className="max-w-md">
+            <h1 className="mb-5 text-5xl font-bold">Explit</h1>
+            <p className="mb-5">
+              Track and split shared expenses with friends and family.
+            </p>
+            <Link to="/signin" className="btn btn-primary">
+              Get Started
+            </Link>
+          </div>
         </div>
       </div>
     </>
