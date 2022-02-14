@@ -66,7 +66,7 @@ const Header = ({ user, route }: Props) => {
                 className="p-2 shadow-lg menu dropdown-content bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <Link to="#" className="text-base-content">
+                  <Link to="/account" className="text-base-content">
                     <span className="text-base-content">Account</span>
                   </Link>
                 </li>
