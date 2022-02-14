@@ -16,6 +16,7 @@ async function seed() {
         "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u",
       teamId: famiglia.id,
       icon: "🧑‍💻",
+      theme: "dark",
     },
   });
   const shahra = await db.user.create({
@@ -25,6 +26,7 @@ async function seed() {
         "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u",
       teamId: famiglia.id,
       icon: "💃",
+      theme: "emerald",
     },
   });
 
