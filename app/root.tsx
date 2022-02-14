@@ -1,11 +1,14 @@
 import type { LinksFunction, MetaFunction } from "remix";
 import { Links, LiveReload, Outlet, useCatch, Meta, Scripts } from "remix";
-import Header from "./components/Header";
 
 import styles from "./tailwind.css";
+import headerStyles from "./styles/header.css";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: styles }];
+  return [
+    { rel: "stylesheet", href: styles },
+    { rel: "stylesheet", href: headerStyles },
+  ];
   // return [
   //   {
   //     rel: "stylesheet",
@@ -56,7 +59,7 @@ function Document({
         <title>{title}</title>
         <Links />
       </head>
-      <body className="bg-base-300 m-0 min-h-screen">
+      <body className="bg-base-300 m-0 min-h-screen p-3">
         {children}
         <Scripts />
         {process.env.NODE_ENV === "development" ? <LiveReload /> : null}

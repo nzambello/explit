@@ -1,0 +1,22 @@
+.drawer-toggle:not(:checked) ~ .drawer-side {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: 0;
+    overflow: hidden;
+}
+
+.drawer-toggle:checked ~ .drawer-side {
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+}
+
+@media (min-width: 1024px) {
+    header.drawer {
+        overflow: visible;
+    }
+}

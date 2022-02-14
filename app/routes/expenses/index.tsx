@@ -29,7 +29,7 @@ export default function JokesIndexRoute() {
   const data = useLoaderData<LoaderData>();
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
+    <div className="grid grid-cols-2 gap-4">
       <div className="col-span-2 md:col-span-1 card shadow-lg compact side bg-base-100 order-last md:order-none">
         <div className="flex-column items-center card-body !py-6">
           <h2 className="card-title">Last expenses</h2>
@@ -50,7 +50,7 @@ export default function JokesIndexRoute() {
                 </div>
                 <div className="grow ml-3 flex flex-col justify-center items-start">
                   <span className="text-xs opacity-50">
-                    {new Intl.DateTimeFormat("en", {
+                    {new Intl.DateTimeFormat("it", {
                       dateStyle: "short",
                       timeStyle: "short",
                     }).format(new Date(exp.createdAt))}
@@ -90,7 +90,7 @@ export default function JokesIndexRoute() {
               ></path>
             </svg>
             <span className="block w-full mt-2 lg:mt-0 lg:w-auto lg:inline-block">
-              New expense
+              New
             </span>
           </Link>
         </div>
