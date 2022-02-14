@@ -353,6 +353,34 @@ export default function AccountPreferencesRoute() {
           </button>
         </div>
       </Form>
+
+      <div className="flex justify-center align-center mt-6">
+        <label
+          htmlFor="delete-user-modal"
+          className="btn btn-error modal-button"
+        >
+          Delete user
+        </label>
+      </div>
+      <input type="checkbox" id="delete-user-modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box absolute left-[10%] right-[10%] top-[40%] w-[80%] rounded-lg">
+          <p>
+            Do you really want to delete your account? All your data will be
+            permanently deleted.
+          </p>
+          <div className="modal-action">
+            <Form action="/account/delete" method="post">
+              <button type="submit" className="btn btn-error">
+                Delete
+              </button>
+            </Form>
+            <label htmlFor="delete-user-modal" className="btn">
+              Cancel
+            </label>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

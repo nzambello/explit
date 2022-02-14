@@ -68,6 +68,21 @@ export async function updateUser({ id, ...data }: UpdateUserForm) {
   return user;
 }
 
+export async function deleteUser(request: Request) {
+  const userId = await getUserId(request);
+  if (!userId) return null;
+
+  const deletedUser = await db.user.delete({ where: { id: userId } });
+  if (!deletedUser) return null;
+
+  const session = await storage.getSession(request.headers.get("Cookie"));
+  return redirect("/", {
+    headers: {
+      "Set-Cookie": await storage.destroySession(session),
+    },
+  });
+}
+
 export async function login({ username, password }: LoginForm) {
   const user = await db.user.findUnique({
     where: { username },
