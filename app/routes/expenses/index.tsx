@@ -66,8 +66,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     ...userData,
     dueAmount: avgPerUser - userData.spent,
   }));
-  console.log("totalExpenses", totalExpenses);
-  console.log("expensesByUser", expensesByUser);
 
   const data: LoaderData = {
     lastExpenses,
@@ -128,7 +126,7 @@ export default function ExpensesIndexRoute() {
           <h2 className="card-title">Who needs to pay who</h2>
           <div className="w-full shadow stats grid-cols-2 grid-flow-row-dense">
             {data.teamCounts?.map((user) => (
-              <div className="stat col-span-1">
+              <div className="stat col-span-1" key={user.id}>
                 <div className="stat-figure text-info">
                   <div className="rounded-full shrink-0 w-4 sm:w-10 h-4 sm:h-10 inline-flex justify-center items-center bg-white text-3xl">
                     {user.icon ?? user.username[0]}
