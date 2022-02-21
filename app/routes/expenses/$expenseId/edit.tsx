@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Expense } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "remix";
 import {
   useActionData,
@@ -7,15 +7,17 @@ import {
   useCatch,
   Link,
   Form,
+  useTransition,
   useLoaderData,
 } from "remix";
 import { db } from "~/utils/db.server";
-import {
-  requireUserId,
-  getUser,
-  getUserId,
-  getUsersByTeam,
-} from "~/utils/session.server";
+import { requireUserId, getUser } from "~/utils/session.server";
+
+function validateExpenseDescription(description: string) {
+  if (description.length < 2) {
+    return `That expense's description is too short`;
+  }
+}
 
 type ActionData = {
   formError?: string;
@@ -23,32 +25,34 @@ type ActionData = {
     description: string | undefined;
     amount?: string | undefined;
     user?: string | undefined;
-    toUser?: string | undefined;
   };
   fields?: {
     description: string;
     amount: number;
-    toUser: string;
   };
 };
 
 type LoaderData = {
-  userId: string | null;
-  teamUsers: User[];
+  userId: string;
+  expense: Expense;
 };
 
 const badRequest = (data: ActionData) => json(data, { status: 400 });
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await getUserId(request);
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
   if (!userId) {
     throw new Response("Unauthorized", { status: 401 });
   }
-  const teamUsers = await getUsersByTeam(request);
-  const data: LoaderData = {
-    userId,
-    teamUsers: teamUsers?.filter((user) => user.id !== userId) ?? [],
-  };
+
+  const expense = await db.expense.findUnique({
+    where: { id: params.expenseId },
+  });
+  if (!expense) {
+    throw new Response("What an expense! Not found.", { status: 404 });
+  }
+
+  const data: LoaderData = { userId, expense };
   return data;
 };
 
@@ -56,13 +60,11 @@ export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
   const user = await getUser(request);
   const form = await request.formData();
-  const toUser = form.get("toUser");
-  const description = form.get("description") ?? "TRASFER";
+  const description = form.get("description");
   const amount = parseInt(form.get("amount")?.toString() || "0", 10);
   if (
     typeof description !== "string" ||
     typeof amount !== "number" ||
-    typeof toUser !== "string" ||
     user === null
   ) {
     return badRequest({
@@ -70,39 +72,54 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const expenseFrom = await db.expense.create({
-    data: {
-      description,
-      amount,
-      userId: userId,
-      teamId: user.teamId,
-    },
-  });
-  const expenseTo = await db.expense.create({
-    data: {
-      description,
-      amount: -amount,
-      userId: toUser,
-      teamId: user.teamId,
-    },
-  });
+  const fieldErrors = {
+    description: validateExpenseDescription(description),
+  };
+  const fields = { description, amount };
+  if (Object.values(fieldErrors).some(Boolean)) {
+    return badRequest({ fieldErrors, fields });
+  }
 
-  if (!expenseFrom || !expenseTo)
-    return json("Internal Server Error", { status: 500 });
-
-  return redirect(`/expenses`);
+  const expense = await db.expense.create({
+    data: { ...fields, userId: userId, teamId: user.teamId },
+  });
+  if (!expense) {
+    return badRequest({
+      formError: `Could not create expense.`,
+    });
+  }
+  return redirect(`/expenses/${expense.id}`);
 };
 
-export default function NewExpenseRoute() {
+export default function EditExpenseRoute() {
   const data = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const transition = useTransition();
+
+  if (transition.submission) {
+    const description = transition.submission.formData.get("description");
+    const amount = transition.submission.formData.get("content");
+    if (
+      typeof description === "string" &&
+      typeof amount === "number" &&
+      !validateExpenseDescription(description)
+    ) {
+      return (
+        <div>
+          <p>Description: {description}</p>
+          <p>Amount: {amount}€</p>
+          <p>User: {data.userId}</p>
+        </div>
+      );
+    }
+  }
 
   return (
     <>
       <div className="container mx-auto min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="card bg-base-200 w-full shadow-lg max-w-lg">
           <div className="card-body w-full">
-            <h1 className="card-title">Transfer to user</h1>
+            <h1 className="card-title">Edit expense</h1>
             <Form
               method="post"
               className="mt-5"
@@ -110,26 +127,6 @@ export default function NewExpenseRoute() {
                 actionData?.formError ? "form-error-message" : undefined
               }
             >
-              <div className="form-control mb-3">
-                <label className="label" htmlFor="toUser-input">
-                  <span className="label-text">To</span>
-                </label>
-                <select
-                  name="toUser"
-                  id="toUser-input"
-                  className="select select-bordered w-full max-w-xs"
-                  defaultValue={actionData?.fields?.toUser}
-                >
-                  <option disabled selected>
-                    Choose an user from your team
-                  </option>
-                  {data?.teamUsers.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
               <div className="form-control mb-3">
                 <label className="label" htmlFor="description-input">
                   <span className="label-text">Description</span>
@@ -139,8 +136,40 @@ export default function NewExpenseRoute() {
                   className="input input-bordered"
                   name="description"
                   id="description-input"
-                  defaultValue={actionData?.fields?.description}
+                  defaultValue={
+                    actionData?.fields?.description ?? data.expense.description
+                  }
+                  aria-invalid={
+                    Boolean(actionData?.fieldErrors?.description) || undefined
+                  }
+                  aria-describedby={
+                    actionData?.fieldErrors?.description
+                      ? "description-error"
+                      : undefined
+                  }
                 />
+                {actionData?.fieldErrors?.description && (
+                  <div className="alert alert-error mt-3" role="alert">
+                    <div className="flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 mx-2 stroke-current"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                        ></path>
+                      </svg>
+                      <label id="description-error">
+                        {actionData?.fieldErrors.description}
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="form-control mb-3">
                 <label className="label" htmlFor="amount-input">
@@ -151,7 +180,9 @@ export default function NewExpenseRoute() {
                   className="input input-bordered"
                   id="amount-input"
                   name="amount"
-                  defaultValue={actionData?.fields?.amount}
+                  defaultValue={
+                    actionData?.fields?.amount ?? data.expense.amount
+                  }
                 />
               </div>
               {actionData?.formError && (
@@ -178,7 +209,7 @@ export default function NewExpenseRoute() {
               )}
               <div className="text-center max-w-xs mx-auto mt-10">
                 <button type="submit" className="btn btn-primary btn-block">
-                  Add
+                  Save
                 </button>
               </div>
             </Form>
@@ -190,13 +221,11 @@ export default function NewExpenseRoute() {
         role="navigation"
       >
         <li>
-          <Link to="/expenses" className="btn btn-outline btn-accent">
+          <Link
+            to={`/expenses/${data.expense.id}`}
+            className="btn btn-outline btn-accent"
+          >
             Back
-          </Link>
-        </li>
-        <li>
-          <Link to="/expenses/new" className="btn btn-outline btn-accent">
-            Add new
           </Link>
         </li>
       </ul>

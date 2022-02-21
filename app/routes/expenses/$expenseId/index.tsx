@@ -134,11 +134,17 @@ export default function ExpenseRoute() {
         {data.isOwner && (
           <>
             <div className="flex justify-center align-center mt-6">
+              <Link
+                to={`/expenses/${data.expense.id}/edit`}
+                className="btn btn-default mr-4"
+              >
+                Edit
+              </Link>
               <label
                 htmlFor="delete-expense-modal"
                 className="btn btn-error modal-button"
               >
-                Delete expense
+                Delete
               </label>
             </div>
             <input

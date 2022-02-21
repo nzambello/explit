@@ -202,7 +202,10 @@ export default function NewExpenseRoute() {
           </div>
         </div>
       </div>
-      <ul className="menu px-3 menu-horizontal rounded-box max-w-xs mx-auto flex items-center justify-evenly">
+      <ul
+        className="menu px-3 menu-horizontal rounded-box max-w-xs mx-auto flex items-center justify-evenly"
+        role="navigation"
+      >
         <li>
           <Link to="/expenses" className="btn btn-outline btn-accent">
             Back
