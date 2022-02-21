@@ -16,13 +16,17 @@ jobs:
       - name: ⬇️  Checkout repo
         uses: actions/checkout@v2
 
-      - name: Apply secret env
+      - name: 🔐 Apply secrets env
         run: |
-          echo 'DATABASE_URL="file:./prod.db"' > .env
+          echo 'PORT=5001' > .env
+          echo 'DATABASE_URL="file:./prod.db"' >> .env
           echo 'SESSION_SECRET="${{secrets.SESSION_SECRET}}"' >> .env
 
-      - name: ⚒ Install dependencies and build
-        run: yarn install && yarn build
+      - name: ⚒ Install and build
+        run: |
+          yarn install
+          yarn build
+          yarn prisma db push
 
       - name: 🚀 Deploy
         run: pm2 startOrRestart ecosystem.config.js
