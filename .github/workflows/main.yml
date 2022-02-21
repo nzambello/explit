@@ -25,7 +25,7 @@ jobs:
       - name: ⚒ Install and build
         run: |
           yarn install
-          yarn build
+          PORT=5001 yarn build
           yarn prisma db push
 
       - name: 🚀 Deploy
