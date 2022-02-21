@@ -4,6 +4,7 @@ module.exports = {
       name: "explit",
       script: "npm",
       args: "start",
+      user: "plone",
       autorestart: true,
       watch: false,
       max_memory_restart: "1G",
