@@ -1,21 +1,99 @@
-import type { User, Team } from "@prisma/client";
+import type { User, Team, Expense } from "@prisma/client";
 import type { LoaderFunction } from "remix";
-import { redirect, Link, useLoaderData, useCatch } from "remix";
-import { getUser } from "~/utils/session.server";
+import { redirect, useLoaderData, useCatch, Link } from "remix";
+import { db } from "~/utils/db.server";
+import { getUser, requireUserId } from "~/utils/session.server";
 import Header from "../components/Header";
 
 type LoaderData = {
   user: (User & { team: Team & { members: User[] } }) | null;
+  thisMonth: {
+    count: number;
+    amount: number;
+  };
+  count: number;
+  avg: number;
+  statsByMonth: {
+    [month: string]: {
+      count: number;
+      amount: number;
+    };
+  };
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const userId = requireUserId(request);
   const user = await getUser(request);
-  if (!user?.id) {
+  if (!user?.id || !userId) {
     return redirect("/login");
   }
 
+  const expenses = await db.expense.aggregate({
+    _avg: {
+      amount: true,
+    },
+    _count: {
+      _all: true,
+    },
+    where: { userId: user.id },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  let thisMonth = new Date();
+  thisMonth.setDate(0);
+  const thisMonthExp = await db.expense.aggregate({
+    _avg: {
+      amount: true,
+    },
+    _count: {
+      _all: true,
+    },
+    where: { userId: user.id, createdAt: { gt: thisMonth } },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  const allExpenses = await db.expense.findMany({
+    where: { userId: user.id },
+  });
+
+  const statsByMonth = allExpenses.reduce(
+    (
+      acc: { [key: string]: { count: number; amount: number } },
+      exp: Expense
+    ) => {
+      const month = new Intl.DateTimeFormat("it", {
+        month: "2-digit",
+        year: "numeric",
+      }).format(new Date(exp.createdAt));
+      if (!acc[month]) {
+        acc[month] = {
+          count: 0,
+          amount: 0,
+        };
+      }
+
+      acc[month].count += 1;
+      acc[month].amount += exp.amount;
+      return acc;
+    },
+    {}
+  );
+
+  console.log(statsByMonth);
+
   const data: LoaderData = {
     user,
+    thisMonth: {
+      count: thisMonthExp?._count?._all ?? 0,
+      amount: thisMonthExp?._avg?.amount ?? 0,
+    },
+    count: expenses._count._all ?? 0,
+    avg: expenses._avg?.amount ?? 0,
+    statsByMonth,
   };
   return data;
 };
@@ -26,33 +104,52 @@ export default function ListExpensesRoute() {
   return (
     <>
       <Header user={data.user} route="/expenses" />
-      <div className="hero py-40 bg-base-200 my-8 rounded-box">
-        <div className="text-center hero-content">
-          <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Work in progress</h1>
-            <p className="mb-5">
-              <button className="btn btn-lg loading"></button>
-              This page is under construction.
-            </p>
-            <Link to="/expenses" className="btn btn-primary">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                className="inline-block w-6 h-6 mr-2 stroke-current rotate-180"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                ></path>
-              </svg>
-              Back
-            </Link>
+      <main className="container mx-auto">
+        <h1 className="mb-10 mt-6 text-4xl font-bold">Statistics</h1>
+
+        <div className="shadow-xl flex flex-wrap w-full rounded-box bg-base-100 overflow-hidden">
+          <div className="stat w-full sm:w-1/2 md:w-1/3">
+            <div className="stat-title">Expenses count</div>
+            <div className="stat-value">{data.count}</div>
+            <div className="stat-desc"></div>
+          </div>
+
+          <div className="stat w-full sm:w-1/2 md:w-1/3">
+            <div className="stat-title">Average per month</div>
+            <div className="stat-value">{data.avg} €</div>
+          </div>
+
+          <div className="stat w-full sm:w-1/2 md:w-1/3">
+            <div className="stat-title">This month</div>
+            <div className="stat-value">{data.thisMonth.amount} €</div>
+            <div className="stat-desc">{data.thisMonth.count} expenses</div>
           </div>
         </div>
-      </div>
+
+        <h2 className="mt-12 mb-8 text-2xl font-bold">Expenses by month</h2>
+        <div className="shadow-xl bg-base-100 rounded-box overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Total</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(data.statsByMonth)?.map((month) => (
+                  <tr key={month}>
+                    <td className="capitalize">{month}</td>
+                    <td>{data.statsByMonth[month].amount} €</td>
+                    <td>{data.statsByMonth[month].count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
     </>
   );
 }
