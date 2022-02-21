@@ -16,26 +16,23 @@ jobs:
       - name: ⬇️  Checkout repo
         uses: actions/checkout@v2
 
-      - name: 🧑‍🔧 Setup
-        run: |
-          chown -R plone:plone *
-          su plone
-
       - name: 🔐 Apply secrets env
         run: |
-          su plone
           echo 'PORT=5001' > .env
           echo 'DATABASE_URL="file:./prod.db"' >> .env
           echo 'SESSION_SECRET="${{secrets.SESSION_SECRET}}"' >> .env
 
       - name: ⚒ Install and build
         run: |
-          su plone
           yarn install
           PORT=5001 yarn build
           yarn prisma db push
 
+      - name: 🧑‍🔧 Setup
+        run:
+
       - name: 🚀 Deploy
         run: |
+          chown -R plone:plone *
           su plone
-          pm2 startOrRestart ecosystem.config.js
+          sudo -u plone pm2 startOrRestart ecosystem.config.js
