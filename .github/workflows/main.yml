@@ -31,5 +31,4 @@ jobs:
       - name: 🚀 Deploy
         run: |
           chown -R plone:plone *
-          su plone
           sudo -u plone pm2 startOrRestart ecosystem.config.js
