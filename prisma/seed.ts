@@ -2,29 +2,29 @@ import { PrismaClient } from "@prisma/client";
 const db = new PrismaClient();
 
 async function seed() {
-  const famiglia = await db.team.create({
+  const team = await db.team.create({
     data: {
-      id: "Famiglia",
-      description: "La mia famiglia",
+      id: "Family",
+      description: "My family",
       icon: "♥️",
     },
   });
-  const nicola = await db.user.create({
+  const user1 = await db.user.create({
     data: {
-      username: "nicola",
+      username: "user1",
       passwordHash:
-        "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u",
-      teamId: famiglia.id,
+        "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u", // twixrox
+      teamId: team.id,
       icon: "🧑‍💻",
       theme: "dark",
     },
   });
-  const shahra = await db.user.create({
+  const user2 = await db.user.create({
     data: {
-      username: "shahra",
+      username: "user2",
       passwordHash:
         "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u",
-      teamId: famiglia.id,
+      teamId: team.id,
       icon: "💃",
       theme: "emerald",
     },
@@ -32,43 +32,43 @@ async function seed() {
 
   const expenses = [
     {
-      description: "Spesa",
+      description: "Groceries",
       amount: 100,
-      userId: nicola.id,
-      teamId: famiglia.id,
+      userId: user1.id,
+      teamId: team.id,
     },
     {
-      description: "Spesa",
+      description: "Groceries",
       amount: 70,
-      userId: shahra.id,
-      teamId: famiglia.id,
+      userId: user2.id,
+      teamId: team.id,
     },
     {
-      description: "Affitto",
+      description: "Rent",
       amount: 500,
-      userId: shahra.id,
-      teamId: famiglia.id,
+      userId: user2.id,
+      teamId: team.id,
     },
 
     // transaction between users
     {
-      description: "Affitto",
+      description: "Rent",
       amount: 250,
-      userId: nicola.id,
-      teamId: famiglia.id,
+      userId: user1.id,
+      teamId: team.id,
     },
     {
-      description: "Affitto",
+      description: "Rent",
       amount: -250,
-      userId: shahra.id,
-      teamId: famiglia.id,
+      userId: user2.id,
+      teamId: team.id,
     },
 
     {
-      description: "Cena",
+      description: "Dinner out",
       amount: 50,
-      userId: nicola.id,
-      teamId: famiglia.id,
+      userId: user1.id,
+      teamId: team.id,
     },
   ];
 

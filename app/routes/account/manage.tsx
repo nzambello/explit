@@ -61,6 +61,13 @@ function validateTeamId(teamId: unknown) {
   }
 }
 
+function validateIncome(income: unknown) {
+  if (typeof income !== "number") {
+    console.log(income, typeof income);
+    return "Income must be a positive number or zero";
+  }
+}
+
 type ActionData = {
   formError?: string;
   success?: string;
@@ -69,12 +76,14 @@ type ActionData = {
     teamId: string | undefined;
     password: string | undefined;
     confirmPassword: string | undefined;
+    avgIncome: string | undefined;
   };
   fields?: {
     password?: string;
     confirmPassword?: string;
     teamId?: string;
     icon?: string;
+    avgIncome?: number;
   };
 };
 
@@ -91,6 +100,7 @@ export const action: ActionFunction = async ({ request }) => {
   const confirmPassword = form.get("confirmPassword");
   const icon = form.get("icon") ?? (user ? user.username[0] : undefined);
   const teamId = form.get("teamId");
+  const avgIncome = form.get("avgIncome");
 
   const fields = {
     icon: typeof icon === "string" ? icon : undefined,
@@ -98,6 +108,12 @@ export const action: ActionFunction = async ({ request }) => {
     confirmPassword:
       typeof confirmPassword === "string" ? confirmPassword : undefined,
     teamId: typeof teamId === "string" ? teamId : undefined,
+    avgIncome:
+      typeof avgIncome === "number"
+        ? Math.round(avgIncome)
+        : typeof avgIncome === "string"
+        ? parseInt(avgIncome, 10)
+        : undefined,
   };
   const fieldErrors = {
     password: validatePassword(password),
@@ -107,14 +123,19 @@ export const action: ActionFunction = async ({ request }) => {
     ),
     icon: validateIcon(icon),
     teamId: validateTeamId(teamId),
+    avgIncome: validateIncome(fields.avgIncome),
   };
   if (Object.values(fieldErrors).some(Boolean))
     return badRequest({ fieldErrors, fields });
 
   const nonEmptyFields = Object.entries(fields).reduce((acc, [key, value]) => {
-    if (typeof value === "string" && key !== "confirmPassword")
+    if (
+      (typeof value === "string" && key !== "confirmPassword") ||
+      (typeof value === "number" && key === "avgIncome")
+    )
       return { ...acc, [key]: value ?? undefined };
-    else return acc;
+
+    return acc;
   }, {});
   const userUpdated = await updateUser({
     id: user.id,
@@ -300,6 +321,48 @@ export default function AccountPreferencesRoute() {
           )}
         </div>
         <div className="form-control mb-3">
+          <label htmlFor="avgIncome-input" className="label">
+            <span className="label-text">Average monthly income</span>
+          </label>
+          <input
+            type="number"
+            id="avgIncome-input"
+            name="avgIncome"
+            className={`input input-bordered${
+              Boolean(actionData?.fieldErrors?.avgIncome) ? " input-error" : ""
+            }`}
+            defaultValue={
+              actionData?.fields?.avgIncome ?? data.user?.avgIncome ?? 0
+            }
+            aria-invalid={Boolean(actionData?.fieldErrors?.avgIncome)}
+            aria-describedby={
+              actionData?.fieldErrors?.avgIncome ? "avgIncome-error" : undefined
+            }
+          />
+          {actionData?.fieldErrors?.avgIncome && (
+            <div className="alert alert-error mt-2" role="alert">
+              <div className="flex-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="w-6 h-6 mx-2 stroke-current"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                  ></path>
+                </svg>
+                <label id="avgIncome-error">
+                  {actionData?.fieldErrors.avgIncome}
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="form-control mb-3">
           <label htmlFor="teamId-input" className="label">
             <span className="label-text">Team</span>
           </label>
@@ -310,7 +373,7 @@ export default function AccountPreferencesRoute() {
             className={`input input-bordered${
               Boolean(actionData?.fieldErrors?.teamId) ? " input-error" : ""
             }`}
-            defaultValue={actionData?.fields?.teamId}
+            defaultValue={actionData?.fields?.teamId ?? data.user?.teamId}
             aria-invalid={Boolean(actionData?.fieldErrors?.teamId)}
             aria-describedby={
               actionData?.fieldErrors?.teamId ? "teamid-error" : undefined

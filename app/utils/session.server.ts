@@ -10,7 +10,7 @@ type LoginForm = {
 type RegisterForm = {
   username: string;
   password: string;
-  icon: string;
+  icon?: string;
   teamId: string;
 };
 
@@ -19,6 +19,7 @@ type UpdateUserForm = {
   password?: string;
   icon?: string;
   teamId?: string;
+  avgIncome?: number;
 };
 
 export async function register({
@@ -38,7 +39,12 @@ export async function register({
     });
   }
   const user = await db.user.create({
-    data: { username, passwordHash, icon: icon ?? username[0], teamId },
+    data: {
+      username,
+      passwordHash,
+      icon: icon && icon.length > 0 ? icon : username[0],
+      teamId,
+    },
   });
   return user;
 }
@@ -62,6 +68,7 @@ export async function updateUser({ id, ...data }: UpdateUserForm) {
       ...(data?.icon ? { icon: data.icon } : {}),
       ...(data?.password ? { passwordHash } : {}),
       ...(data?.teamId ? { teamId: data.teamId } : {}),
+      ...(data?.avgIncome ? { avgIncome: data.avgIncome } : {}),
     },
     where: { id },
   });

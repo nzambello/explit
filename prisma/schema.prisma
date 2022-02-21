@@ -11,10 +11,11 @@ datasource db {
 }
 
 model Team {
-  id          String  @id
-  icon        String
-  description String?
-  members     User[]
+  id              String   @id
+  icon            String
+  description     String?
+  members         User[]
+  balanceByIncome Boolean? @default(value: false)
 }
 
 model User {
@@ -28,6 +29,7 @@ model User {
   team         Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
   expenses     Expense[]
   theme        String?
+  avgIncome    Int?
 }
 
 model Expense {

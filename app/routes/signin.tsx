@@ -34,7 +34,7 @@ function validateConfirmPassword(confirmPassword: unknown, password: string) {
 }
 
 function validateIcon(icon: unknown) {
-  if (typeof icon !== "string" || icon.length > 2) {
+  if (typeof icon !== "string") {
     return `Icons must be a single character, e.g. "A" or "😎"`;
   }
 }
@@ -70,9 +70,7 @@ export const action: ActionFunction = async ({ request }) => {
   const username = form.get("username");
   const password = form.get("password");
   const confirmPassword = form.get("confirmPassword");
-  const icon =
-    form.get("icon") ??
-    (typeof username === "string" ? username[0] : undefined);
+  const icon = form.get("icon");
   const teamId = form.get("teamId");
   const redirectTo = form.get("redirectTo") || "/expenses";
   if (
@@ -80,6 +78,7 @@ export const action: ActionFunction = async ({ request }) => {
     typeof password !== "string" ||
     typeof confirmPassword !== "string" ||
     typeof teamId !== "string" ||
+    typeof icon !== "string" ||
     typeof redirectTo !== "string"
   ) {
     return badRequest({
@@ -87,12 +86,12 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const fields = { username, password, confirmPassword, teamId };
+  const fields = { username, password, icon, confirmPassword, teamId };
   const fieldErrors = {
     username: validateUsername(username),
     password: validatePassword(password),
     confirmPassword: validateConfirmPassword(confirmPassword, password),
-    icon: validateIcon(icon),
+    icon: validateIcon(icon ?? ""),
     teamId: validateTeamId(teamId),
   };
   if (Object.values(fieldErrors).some(Boolean))

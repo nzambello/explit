@@ -15,6 +15,7 @@ type LoaderData = {
     count: number;
     spent: number;
     dueAmount: number;
+    avgIncome: number;
   }[];
   totalExpenses: {
     count: number;
@@ -52,19 +53,33 @@ export const loader: LoaderFunction = async ({ request }) => {
     icon: m.icon,
     count: teamExpenses.find((e) => e.userId === m.id)?._count?._all ?? 0,
     spent: teamExpenses.find((e) => e.userId === m.id)?._sum?.amount ?? 0,
+    avgIncome: m.avgIncome ?? 0,
     dueAmount: 0,
   }));
   let totalExpenses = expensesByUser.reduce(
-    (acc, { count, spent }) => ({
+    (acc, { count, spent, avgIncome }) => ({
       count: acc.count + count,
       amount: acc.amount + spent,
+      incomes: acc.incomes + avgIncome,
     }),
-    { count: 0, amount: 0 }
+    { count: 0, amount: 0, incomes: 0 }
   );
+
   const avgPerUser = totalExpenses.amount / user.team.members.length;
+  const quotaPerUser = expensesByUser.reduce(
+    (acc: { [key: string]: number }, userData) => {
+      acc[userData.id] =
+        (userData.avgIncome / totalExpenses.incomes) * totalExpenses.amount;
+      return acc;
+    },
+    {}
+  );
+
   let teamCounts = expensesByUser.map((userData) => ({
     ...userData,
-    dueAmount: avgPerUser - userData.spent,
+    dueAmount: user.team.balanceByIncome
+      ? quotaPerUser[userData.id] - userData.spent
+      : avgPerUser - userData.spent,
   }));
 
   const data: LoaderData = {
@@ -123,7 +138,7 @@ export default function ExpensesIndexRoute() {
       </div>
       <div className="col-span-2 md:col-span-1 card shadow-lg compact side bg-base-100">
         <div className="flex-column items-center card-body !py-6">
-          <h2 className="card-title">Who needs to pay who</h2>
+          <h2 className="card-title">Team balance</h2>
           <div className="w-full shadow stats grid-cols-2 grid-flow-row-dense">
             {data.teamCounts?.map((user) => (
               <div className="stat col-span-1" key={user.id}>
