@@ -2,6 +2,7 @@ import type { User } from "@prisma/client";
 import { LinksFunction, MetaFunction, LoaderFunction, redirect } from "remix";
 import { Link, useLoaderData } from "remix";
 import Header from "~/components/Header";
+import ExplitLogo from "~/ExplitLogo";
 import { getUser } from "~/utils/session.server";
 
 type LoaderData = { user: User | null };
@@ -44,13 +45,9 @@ export default function Index() {
         <div className="hero-overlay bg-opacity-60"></div>
         <div className="text-center hero-content glass rounded-box w-[80%] py-16 text-neutral-content">
           <div className="max-w-md">
-            <picture className="max-w-xs max-h-xs flex mx-auto justify-center items-center mb-6">
-              <img
-                className="w-[70%] h-auto max-h-20 md:max-h-none object-contain"
-                src="/icons/android-chrome-512x512.png"
-                alt=""
-              />
-            </picture>
+            <figure className="max-w-xs max-h-xs flex mx-auto justify-center items-center mb-6">
+              <ExplitLogo className="w-[70%] h-auto max-h-20 md:max-h-none object-contain" />
+            </figure>
             <h1 className="mb-5 text-5xl font-bold">Explit</h1>
             <p className="mb-5">
               Track and split shared expenses with friends and family.
