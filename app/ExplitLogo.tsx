@@ -1,4 +1,4 @@
-const ExplitLogo = ({ className }: { className: string }) => (
+const ExplitLogo = ({ className }: { className?: string }) => (
   <svg
     viewBox="0 0 100 100"
     fill="none"

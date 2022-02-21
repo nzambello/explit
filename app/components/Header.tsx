@@ -4,6 +4,7 @@ import People from "~/icons/People";
 import MoneyAdd from "~/icons/MoneyAdd";
 import LoginSVG from "../icons/Login";
 import Percentage from "~/icons/Percentage";
+import ExplitLogo from "~/ExplitLogo";
 
 interface Props {
   user?: User | null;
@@ -37,7 +38,8 @@ const Header = ({ user, route }: Props) => {
             </label>
           </div>
           <div className="flex-1">
-            <Link to="/" className="btn btn-ghost rounded-btn">
+            <Link to="/" className="btn btn-ghost rounded-btn px-0 md:px-3">
+              <ExplitLogo className="w-10 h-10 mr-2 md:mr-4" />
               <span className="text-lg font-bold">Explit</span>
             </Link>
           </div>
@@ -153,6 +155,7 @@ const Header = ({ user, route }: Props) => {
               to="/"
               className="btn btn-ghost rounded-btn items-center h-auto"
             >
+              <ExplitLogo className="w-10 mr-3" />
               <span className="text-lg font-bold">Explit</span>
             </Link>
           </li>
