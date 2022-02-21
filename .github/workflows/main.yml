@@ -16,8 +16,8 @@ jobs:
       - name: ⬇️  Checkout repo
         uses: actions/checkout@v2
 
-      - name: ⚒ Build
-        run: yarn build
+      - name: ⚒ Install dependencies and build
+        run: yarn install && yarn build
 
       - name: 🚀 Deploy
         run: pm2 startOrRestart ecosystem.config.js
