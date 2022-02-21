@@ -16,7 +16,7 @@ jobs:
       - name: ⬇️  Checkout repo
         uses: actions/checkout@v2
         with:
-          path: ../../explit
+          path: ../../../../explit
 
       - name: ⚒ Build
         run: yarn build
