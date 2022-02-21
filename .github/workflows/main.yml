@@ -16,6 +16,11 @@ jobs:
       - name: ⬇️  Checkout repo
         uses: actions/checkout@v2
 
+      - name: Apply secret env
+        run: |
+          echo 'DATABASE_URL="file:./prod.db"' > .env
+          echo 'SESSION_SECRET="${{secrets.SESSION_SECRET}}"' >> .env
+
       - name: ⚒ Install dependencies and build
         run: yarn install && yarn build
 
