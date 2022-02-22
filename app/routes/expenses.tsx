@@ -30,7 +30,7 @@ export default function ExpensesRoute() {
   return (
     <>
       <Header user={data.user} route="/expenses" />
-      <main>
+      <main className="container mx-auto px-2">
         <Outlet />
       </main>
     </>

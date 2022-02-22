@@ -83,8 +83,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     {}
   );
 
-  console.log(statsByMonth);
-
   const data: LoaderData = {
     user,
     thisMonth: {
@@ -116,12 +114,14 @@ export default function ListExpensesRoute() {
 
           <div className="stat w-full sm:w-1/2 md:w-1/3">
             <div className="stat-title">Average per month</div>
-            <div className="stat-value">{data.avg} €</div>
+            <div className="stat-value">{data.avg.toFixed(2)} €</div>
           </div>
 
           <div className="stat w-full sm:w-1/2 md:w-1/3">
             <div className="stat-title">This month</div>
-            <div className="stat-value">{data.thisMonth.amount} €</div>
+            <div className="stat-value">
+              {data.thisMonth.amount.toFixed(2)} €
+            </div>
             <div className="stat-desc">{data.thisMonth.count} expenses</div>
           </div>
         </div>

@@ -148,11 +148,14 @@ export default function ExpensesIndexRoute() {
                   </div>
                 </div>
                 <div
-                  className={`stat-value ${
+                  className={`stat-value text-2xl ${
                     user.dueAmount > 0 ? "text-error" : "text-success"
                   }`}
                 >
-                  {Math.abs(user.dueAmount)} €
+                  {user.dueAmount !== Math.round(user.dueAmount)
+                    ? Math.abs(user.dueAmount).toFixed(2)
+                    : Math.abs(user.dueAmount)}{" "}
+                  €
                 </div>
                 <div className="stat-title text-lg">{user.username}</div>
                 <div className="stat-desc text-info">
