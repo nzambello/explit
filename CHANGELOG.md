@@ -1,3 +1,18 @@
+## [1.1.0](https://github.com/nzambello/explit/compare/v1.0.0...v1.1.0) (2022-02-22)
+
+
+### Features
+
+* add expenses list + filters ([6740469](https://github.com/nzambello/explit/commit/6740469f9470c412ca76a2c3bf865ab2f5f1f9a7))
+* add income based balances ([60b5518](https://github.com/nzambello/explit/commit/60b551801a2a2cd5070f23e5e0439b857b075a72))
+* add statistics ([b6674bc](https://github.com/nzambello/explit/commit/b6674bccd7a96983d2e66a988a759b89016d1d5f))
+* edit expense, fix navigation on expense forms ([0fabc1e](https://github.com/nzambello/explit/commit/0fabc1edcc198d49602e9075d597674bfc6b36c9))
+
+
+### Bug Fixes
+
+* wf prisma generation ([0c269f6](https://github.com/nzambello/explit/commit/0c269f6e433e7879c38e8c6a979bd120e0b7e6c7))
+
 ## 1.0.0 (2022-02-21)
 
 
