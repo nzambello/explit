@@ -1,3 +1,10 @@
+### [1.1.1](https://github.com/nzambello/explit/compare/v1.1.0...v1.1.1) (2022-02-22)
+
+
+### Maintenance
+
+* disable gh action ([96c66b0](https://github.com/nzambello/explit/commit/96c66b0d1a6425cf278889536323e3173b10b468))
+
 ## [1.1.0](https://github.com/nzambello/explit/compare/v1.0.0...v1.1.0) (2022-02-22)
 
 
